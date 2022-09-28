@@ -163,7 +163,7 @@ spec:
   clusterName: ${CLUSTER_NAME}
   replicas: ${WORKER_MACHINE_COUNT}
   selector:
-    matchLabels: null
+    matchLabels: {}
   strategy:
     type: RollingUpdate
   template:
