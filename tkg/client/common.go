@@ -313,19 +313,16 @@ func (c *TkgClient) ShouldDeployClusterClassBasedCluster(isManagementCluster boo
 		return false, err
 	}
 
-	featureFlagPackageBasedLCMEnabled := config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM)
-
-	// If `package-based-lcm` featureflag is enabled and deploying management cluster
-	// Always use ClusterClass based Cluster deployment
-	if featureFlagPackageBasedLCMEnabled && isManagementCluster {
+	// Management cluster always uses ClusterClass based Cluster deployment
+	if isManagementCluster {
+		log.Info("Info: Managenment cluster will be always ClusterClass based for Glasgow and later")
 		if isCustomOverlayPresent {
 			log.Warning("Warning: It seems like you have done some customizations to the template overlays. However, CLI might ignore those customizations when creating management-cluster.")
 		}
 		return true, nil
 	}
 
-	deployClusterClassBasedCluster := config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) &&
-		(config.IsFeatureActivated(config.FeatureFlagForceDeployClusterWithClusterClass) || !isCustomOverlayPresent)
+	deployClusterClassBasedCluster := config.IsFeatureActivated(config.FeatureFlagForceDeployClusterWithClusterClass) || !isCustomOverlayPresent
 
 	return deployClusterClassBasedCluster, nil
 }

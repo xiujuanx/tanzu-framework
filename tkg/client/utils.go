@@ -23,7 +23,6 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
@@ -434,15 +433,6 @@ func IsProdPlan(plan string) bool {
 // Sets the appropriate CAPI ClusterTopology configuration unless it has been explicitly overridden
 func (c *TkgClient) ensureClusterTopologyConfiguration() {
 	clusterTopologyValueToSet := trueStr
-	if !c.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-		value, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterTopology)
-		if err != nil {
-			clusterTopologyValueToSet = falseStr
-		} else {
-			log.V(6).Infof("%v configuration already set to %q", constants.ConfigVariableClusterTopology, value)
-			return
-		}
-	}
 	log.V(6).Infof("Setting %v to %q", constants.ConfigVariableClusterTopology, clusterTopologyValueToSet)
 	c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterTopology, clusterTopologyValueToSet)
 }

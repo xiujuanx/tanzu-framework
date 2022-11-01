@@ -17,7 +17,6 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
@@ -154,18 +153,16 @@ func (t *tkgctl) processManagementClusterInputFile(ir *InitRegionOptions) (bool,
 	var err error
 	isInputFileClusterClassBased := false
 
-	if t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-		isInputFileClusterClassBased, clusterobj, err = CheckIfInputFileIsClusterClassBased(ir.ClusterConfigFile)
+	isInputFileClusterClassBased, clusterobj, err = CheckIfInputFileIsClusterClassBased(ir.ClusterConfigFile)
+	if err != nil {
+		return isInputFileClusterClassBased, err
+	}
+	if isInputFileClusterClassBased {
+		err = t.processClusterObjectForConfigurationVariables(clusterobj)
 		if err != nil {
 			return isInputFileClusterClassBased, err
 		}
-		if isInputFileClusterClassBased {
-			err = t.processClusterObjectForConfigurationVariables(clusterobj)
-			if err != nil {
-				return isInputFileClusterClassBased, err
-			}
-			t.overrideManagementClusterOptionsWithLatestEnvironmentConfigurationValues(ir)
-		}
+		t.overrideManagementClusterOptionsWithLatestEnvironmentConfigurationValues(ir)
 	}
 	return isInputFileClusterClassBased, nil
 }
@@ -176,9 +173,6 @@ func (t *tkgctl) processWorkloadClusterInputFile(cc *CreateClusterOptions, isTKG
 		return isInputFileClusterClassBased, err
 	}
 	if isInputFileClusterClassBased {
-		if !isTKGSCluster && !t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-			return isInputFileClusterClassBased, fmt.Errorf(constants.ErrorMsgCClassInputFeatureFlagDisabled, config.FeatureFlagPackageBasedLCM)
-		}
 		if isTKGSCluster {
 			t.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterName, clusterobj.GetName())
 			t.TKGConfigReaderWriter().Set(constants.ConfigVariableNamespace, clusterobj.GetNamespace())

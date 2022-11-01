@@ -147,28 +147,26 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 			return false, errors.Wrap(err, "unable to get cluster configuration")
 		}
 
-		if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-			clusterConfigDir, err := c.tkgConfigPathsClient.GetClusterConfigurationDirectory()
-			if err != nil {
-				return false, err
-			}
-			configFilePath = filepath.Join(clusterConfigDir, fmt.Sprintf("%s.yaml", options.ClusterName))
-			err = utils.SaveFile(configFilePath, bytes)
-			if err != nil {
-				return false, err
-			}
-
-			log.Warningf("\nLegacy configuration file detected. The inputs from said file have been converted into the new Cluster configuration as '%v'", configFilePath)
-
-			// If `features.cluster.auto-apply-generated-clusterclass-based-configuration` feature-flag is not activated
-			// log command to use to create cluster using ClusterClass based config file and return
-			if !config.IsFeatureActivated(config.FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration) {
-				log.Warningf("\nTo create a cluster with it, use")
-				log.Warningf("    tanzu cluster create --file %v", configFilePath)
-				return false, nil
-			}
-			log.Warningf("\nUsing this new Cluster configuration '%v' to create the cluster.\n", configFilePath)
+		clusterConfigDir, err := c.tkgConfigPathsClient.GetClusterConfigurationDirectory()
+		if err != nil {
+			return false, err
 		}
+		configFilePath = filepath.Join(clusterConfigDir, fmt.Sprintf("%s.yaml", options.ClusterName))
+		err = utils.SaveFile(configFilePath, bytes)
+		if err != nil {
+			return false, err
+		}
+
+		log.Warningf("\nLegacy configuration file detected. The inputs from said file have been converted into the new Cluster configuration as '%v'", configFilePath)
+
+		// If `features.cluster.auto-apply-generated-clusterclass-based-configuration` feature-flag is not activated
+		// log command to use to create cluster using ClusterClass based config file and return
+		if !config.IsFeatureActivated(config.FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration) {
+			log.Warningf("\nTo create a cluster with it, use")
+			log.Warningf("    tanzu cluster create --file %v", configFilePath)
+			return false, nil
+		}
+		log.Warningf("\nUsing this new Cluster configuration '%v' to create the cluster.\n", configFilePath)
 	}
 
 	log.Infof("creating workload cluster '%s'...", options.ClusterName)

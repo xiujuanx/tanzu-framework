@@ -38,10 +38,6 @@ const (
 	// support of ARM should be included when discovering available AWS instance types. Setting feature flag to true
 	// filters out ARM supporting instance types; false allows ARM instance types to be included in results.
 	FeatureFlagAwsInstanceTypesExcludeArm = "features.management-cluster.aws-instance-types-exclude-arm"
-	// PackageBasedLCM feature flag determines whether to use package based lifecycle management of management component
-	// or legacy way of managing management components. This is also used for clusterclass based management and workload
-	// cluster provisioning
-	FeatureFlagPackageBasedLCM = "features.global.package-based-lcm-beta"
 	// TKR version v1alpha3 feature flag determines whether to use Tanzu Kubernetes Release API version v1alpha3. Setting
 	// feature flag to true will allow to use the TKR version v1alpha3; false allows to use legacy TKR version v1alpha1
 	FeatureFlagTKRVersionV1Alpha3 = "features.global.tkr-version-v1alpha3-beta"
